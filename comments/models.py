@@ -7,9 +7,21 @@ class Comments(models.Model):
     created_add = models.DateTimeField(auto_now_add=True, blank=True, verbose_name='Время добавления')
     rating = models.IntegerField(blank=True, verbose_name='Рейтинг')
     email = models.EmailField(unique=True)
+    photo_comments = models.ImageField(upload_to='photo/%Y/%m/%d/', blank=False, verbose_name='Фото коментария',
+                                       default='Default.jpg')
 
     def __str__(self):
         return self.full_name
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            "full_name": self.full_name,
+            "comment": self.comment,
+            "created_add": self.created_add.strftime('%Y-%m-%d %H:%M'),
+            "rating": self.rating,
+            "email": self.email,
+        }
 
 
 class Product(models.Model):

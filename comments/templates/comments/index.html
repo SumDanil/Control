@@ -6,40 +6,271 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title></title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <title>Hello, world!</title>
+
+    <!--    <script src="https://cdn.jsdelivr.net/npm/vuelidate@0.7.6/lib/index.min.js"></script>-->
+
+    <style>
+        #app {
+            background: slategray;
+        }
+
+        .comments {
+            margin-top: 50px;
+            padding-bottom: 50px;
+        }
+
+        .btn-primary {
+            position: relative;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+
+    </style>
 </head>
 <body>
-<div class="card mb-3" style="max-width: 60%; margin-left: 20%">
-    <div class="row g-0">
-        {% for item in product %}
-        <div class="col-md-4">
-            <img src="..." class="img-fluid rounded-start" alt="...">
+<div id="app">
+    <div class="card mb-3 product" style="max-width: 60%; margin-left: 20% ">
+        <div class="row g-0">
+            {% for item in product %}
+            <div class="col-md-4">
+                <img src="{{item.photo.url}}" class="img-fluid rounded-start" alt="">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name_product }}</h5>
+                    <p class="card-text">
+                        {{ item.description_product }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">{{ item.name_product }}</h5>
-                <p class="card-text">
-                    {{ item.description_product }}
-                </p>
+    </div>
+    <form style="max-width: 35%; margin-left: 20%">
+        <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Имя пользователя</label>
+            <textarea
+                    class="form-control"
+                    id="exampleFormControlTextarea2"
+                    rows="1"
+                    v-model="form.name"
+            ></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email пользователя </label>
+            <input
+                    type="email"
+                    class="form-control"
+                    id="exampleInputEmail1"
+                    aria-describedby="emailHelp"
+                    v-model="form.email"
+            >
+            <div id="emailHelp" class="form-text">Поле обязательное для заполнения.</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Коментарий</label>
+            <textarea
+                    class="form-control"
+                    id="exampleFormControlTextarea1"
+                    rows="3"
+                    v-model="form.comment"
+            ></textarea>
+        </div>
+        <div class="mb-3">
+            <!--            <label for="formFile" class="form-label">Фото</label>-->
+            <input type="file" id="file" ref="myFiles" class="custom-file-input"
+                   @change="previewFiles" multiple>
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1"
+                        value="1"
+                        v-model="form.rating"
+                >
+                <label class="form-check-label" for="flexRadioDefault1">
+                    1
+                </label>
+            </div>
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault2"
+                        value="2"
+                        v-model="form.rating"
+                >
+                <label class="form-check-label" for="flexRadioDefault1">
+                    2
+                </label>
+            </div>
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault3"
+                        value="3"
+                        v-model="form.rating"
+                >
+                <label class="form-check-label" for="flexRadioDefault1">
+                    3
+                </label>
+            </div>
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault4"
+                        value="4"
+                        v-model="form.rating"
+                >
+                <label class="form-check-label" for="flexRadioDefault1">
+                    4
+                </label>
+            </div>
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault5"
+                        value="5"
+                        v-model="form.rating"
+                >
+                <label class="form-check-label" for="flexRadioDefault1">
+                    5
+                </label>
             </div>
         </div>
-        {% endfor %}
+    </form>
+    <button
+            class="btn btn-primary"
+            @click="set_data"
+
+
+    >Submit
+    </button>
+    <div
+            class="comments"
+            v-for="(data, index) in comment_all"
+            :key="index"
+            v-bind:key="data.id"
+    >
+        <div class="card mb-3 comments_card" style="max-width: 60%; margin-left: 20%">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <div class="card-body">
+                        <p class="card-text">
+                            <% data.full_name %>
+                        </p>
+                        <p class="card-text">
+                            Оценка:
+                            <% data.rating %>
+                        </p>
+                        <p class="card-text">
+                        <p>Дата добавления:</p>
+                        <% data.created_add %>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <p class="card-title"><% data.email %></p>
+                        <p class="card-text">
+                            <% data.comment %>
+                        </p>
+                        <p class="card-text">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+
 </div>
-
-
-<!--{% for item in product %}-->
-<!--<div>{{ item.photo }}</div>-->
-<!--<div>-->
-<!--    <div>{{ item.name_product }}</div>-->
-<!--    <div>{{ item.description_product }}</div>-->
-<!--</div>-->
-<!--{% endfor %}-->
-
+<script src="http://twitter.github.com/hogan.js/builds/3.0.1/hogan-3.0.1.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                form: {
+                    email: '',
+                    name: '',
+                    comment: '',
+                    rating: '',
+                    photo_comments: [],
+                },
+                comment_all: []
+            }
+        },
+        delimiters: ["<%", "%>"],
+
+        mounted() {
+            this.get_comment()
+
+        },
+        methods: {
+            sort_comments() {
+                this.comment_all.data.sort((a, b) => a.created_add > b.created_add ? 1 : -1)
+            },
+            previewFiles() {
+                this.photo_comments = this.$refs.myFiles.files
+            },
+
+            get_comment() {
+                axios.get('http://127.0.0.1:8000/post_comments/')
+                    .then(response => (this.comment_all = response.data));
+            },
+
+            set_data() {
+
+                if (this.form.name.length > 1 && this.form.email.length > 1 && this.form.comment.length > 1) {
+                    console.log(this.form.name)
+                    axios.post('http://127.0.0.1:8000/get_comments/', {
+                        data: {
+                            full_name: this.form.name,
+                            email: this.form.email,
+                            comment: this.form.comment,
+                            rating: this.form.rating,
+                            photo_comments: this.form.photo_comments,
+                        }
+                    }).then((res) => {
+                        console.log(res)
+                        axios.get('http://127.0.0.1:8000/post_comments/')
+                            .then((response) => {
+                                console.log(response.data)
+                                console.log(this.comment_all)
+                                this.comment_all = response.data
+                                this.form.email = '';
+                                this.form.comment = '';
+                                this.form.rating = '';
+                            })
+                    }).catch((error) => {
+                        console.log(error)
+                    })
+
+                }
+            }
+        }
+    })
+</script>
+
 
 </body>
 </html>
