@@ -21,6 +21,7 @@ class Comments(models.Model):
             "created_add": self.created_add.strftime('%Y-%m-%d %H:%M'),
             "rating": self.rating,
             "email": self.email,
+            "photo_comments": self.photo_comments.url,
         }
 
 

@@ -29,6 +29,10 @@
             transform: translate(-50%, 0);
         }
 
+        .image_comments_card{
+            max-height: 200px;
+            max-width: 150px;
+        }
     </style>
 </head>
 <body>
@@ -81,8 +85,8 @@
             ></textarea>
         </div>
         <div class="mb-3">
-            <!--            <label for="formFile" class="form-label">Фото</label>-->
-            <input type="file" id="file" ref="myFiles" class="custom-file-input"
+            <input type="file"
+                   class="custom-file-input"
                    @change="previewFiles" multiple>
         </div>
         <div class="mb-3">
@@ -168,7 +172,7 @@
     >
         <div class="card mb-3 comments_card" style="max-width: 60%; margin-left: 20%">
             <div class="row g-0">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="card-body">
                         <p class="card-text">
                             <% data.full_name %>
@@ -183,7 +187,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-5">
                     <div class="card-body">
                         <p class="card-title"><% data.email %></p>
                         <p class="card-text">
@@ -191,6 +195,15 @@
                         </p>
                         <p class="card-text">
                         </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-body">
+                        <img
+                                v-bind:src=" data.photo_comments "
+                                alt=""
+                                class="image_comments_card"
+                        >
                     </div>
                 </div>
             </div>
@@ -214,7 +227,7 @@
                     name: '',
                     comment: '',
                     rating: '',
-                    photo_comments: [],
+                    photo_comments: null,
                 },
                 comment_all: []
             }
@@ -229,37 +242,32 @@
             sort_comments() {
                 this.comment_all.data.sort((a, b) => a.created_add > b.created_add ? 1 : -1)
             },
-            previewFiles() {
-                this.photo_comments = this.$refs.myFiles.files
+            previewFiles(event) {
+                this.form.photo_comments = event.target.files[0]
             },
 
             get_comment() {
                 axios.get('http://127.0.0.1:8000/post_comments/')
                     .then(response => (this.comment_all = response.data));
             },
-
             set_data() {
-
                 if (this.form.name.length > 1 && this.form.email.length > 1 && this.form.comment.length > 1) {
-                    console.log(this.form.name)
-                    axios.post('http://127.0.0.1:8000/get_comments/', {
-                        data: {
-                            full_name: this.form.name,
-                            email: this.form.email,
-                            comment: this.form.comment,
-                            rating: this.form.rating,
-                            photo_comments: this.form.photo_comments,
-                        }
-                    }).then((res) => {
+                    let fd = new FormData();
+                    fd.append('full_name', this.form.name)
+                    fd.append('email', this.form.email)
+                    fd.append('comment', this.form.comment)
+                    fd.append('rating', this.form.rating)
+                    fd.append('image', this.form.photo_comments, this.form.photo_comments.name)
+                    console.log('fd', fd)
+                    axios.post('http://127.0.0.1:8000/get_comments/', fd).then((res) => {
                         console.log(res)
                         axios.get('http://127.0.0.1:8000/post_comments/')
                             .then((response) => {
-                                console.log(response.data)
-                                console.log(this.comment_all)
                                 this.comment_all = response.data
                                 this.form.email = '';
                                 this.form.comment = '';
                                 this.form.rating = '';
+                                this.form.name = '';
                             })
                     }).catch((error) => {
                         console.log(error)
@@ -270,7 +278,5 @@
         }
     })
 </script>
-
-
 </body>
 </html>

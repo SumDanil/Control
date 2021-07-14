@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from urllib.parse import unquote as decode_url
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import FileSystemStorage
 
 
 # from db_from_vue.models import db_fro_vue, User
@@ -27,6 +28,8 @@ def get_request(request):
     dict_list = {}
     for key, value in request.POST.items():
         dict_list.update({key: value})
+    for key, value in request.FILES.items():
+        dict_list.update({key: value})
     for key, value in request.GET.items():
         dict_list.update({decode_url(key): decode_url(value)})
     try:
@@ -39,12 +42,22 @@ def get_request(request):
 
 @csrf_exempt
 def get_comments(request):
+    myfile = request.FILES['image']
+    fs = FileSystemStorage()
+    filename = fs.save(myfile.name, myfile)
+    uploaded_file_url = fs.url(filename)
+    print('СМОТРИ НИЖЕ')
+    print(myfile)
+    print(fs)
+    print(filename)
+    print(uploaded_file_url)
     data = get_request(request)
     print(f'{data = }')
-    comments = Comments.objects.create(full_name=data['data']['full_name'],
-                                       comment=data['data']['comment'],
-                                       email=data['data']['email'],
-                                       rating=data['data']['rating'])
+    comments = Comments.objects.create(full_name=data['full_name'],
+                                       comment=data['comment'],
+                                       email=data['email'],
+                                       rating=data['rating'],
+                                       photo_comments=request.FILES['image'])
     return HttpResponse(status=200)
 
 
